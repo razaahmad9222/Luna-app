@@ -1,9 +1,10 @@
 
 import React from 'react';
+import { View, Text, Dimensions } from 'react-native';
+import Svg, { Path, Circle, G } from 'react-native-svg';
 import { CyclePhase } from '../../types';
 import { PHASE_CONFIG } from '../../constants';
-import { cn } from '../../lib/utils';
-import { motion } from 'framer-motion';
+import clsx from 'clsx';
 
 interface Props {
   phase: CyclePhase;
@@ -12,58 +13,72 @@ interface Props {
 
 export const PhaseIndicator: React.FC<Props> = ({ phase, day }) => {
   const config = PHASE_CONFIG[phase];
+  const size = 64;
+  const strokeWidth = 3;
+  const center = size / 2;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = 0.35; // Mock progress
+  const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl border border-luna-amethyst-100">
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Current Phase</span>
-          <h2 className="mt-1 text-3xl font-display font-bold text-gray-900 flex items-center gap-2">
-             {config.name} <span className="text-2xl">{config.emoji}</span>
-          </h2>
-          <p className="text-luna-amethyst-600 font-medium">Day {day} of Cycle</p>
-        </div>
-        <div className="relative h-16 w-16">
-          {/* Simple circular progress visualization */}
-          <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-            <path
-              className="text-gray-100"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+    <View className="relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm border border-purple-100 mb-4">
+      <View className="flex-row items-center justify-between">
+        <View>
+          <Text className="text-xs font-bold text-gray-500 uppercase tracking-wider">Current Phase</Text>
+          <View className="flex-row items-center mt-1">
+            <Text className="text-3xl font-serif font-bold text-gray-900 mr-2">{config.name}</Text>
+            <Text className="text-2xl">{config.emoji}</Text>
+          </View>
+          <Text className="text-purple-600 font-medium">Day {day} of Cycle</Text>
+        </View>
+        
+        <View className="relative items-center justify-center" style={{ width: size, height: size }}>
+          <Svg width={size} height={size} style={{ transform: [{ rotate: '-90deg' }] }}>
+            <Circle
+              cx={center}
+              cy={center}
+              r={radius}
+              stroke="#E5E7EB"
+              strokeWidth={strokeWidth}
               fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
             />
-            <motion.path
-              className={cn("text-primary", config.color)}
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 0.35 }} // Mock progress
-              transition={{ duration: 1.5, ease: "easeOut" }}
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              fill="none"
+            <Circle
+              cx={center}
+              cy={center}
+              r={radius}
               stroke={config.color}
-              strokeWidth="3"
-              strokeDasharray="100, 100"
+              strokeWidth={strokeWidth}
+              fill="none"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
             />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-700">
-            {day}
-          </div>
-        </div>
-      </div>
+          </Svg>
+          <View className="absolute inset-0 items-center justify-center">
+             <Text className="text-sm font-bold text-gray-700">{day}</Text>
+          </View>
+        </View>
+      </View>
       
-      <div className="mt-4">
-        <p className="text-sm text-gray-600 mb-2">{config.description}</p>
-        <div className="flex flex-wrap gap-2">
+      <View className="mt-4">
+        <Text className="text-sm text-gray-600 mb-2">{config.description}</Text>
+        <View className="flex-row flex-wrap gap-2">
           {config.recommendations.map((rec, i) => (
-            <span key={i} className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-              {rec}
-            </span>
+            <View key={i} className="rounded-full bg-gray-100 px-3 py-1">
+              <Text className="text-xs font-medium text-gray-800">
+                {rec}
+              </Text>
+            </View>
           ))}
-        </div>
-      </div>
+        </View>
+      </View>
       
       {/* Background decoration */}
-      <div className={cn("absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10 blur-xl", config.bgColor)} />
-    </div>
+      <View 
+        className={clsx("absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10", config.bgColor.replace('bg-', 'bg-'))} 
+        style={{ backgroundColor: config.color }}
+      />
+    </View>
   );
 };

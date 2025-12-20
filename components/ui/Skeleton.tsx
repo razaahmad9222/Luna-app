@@ -1,14 +1,20 @@
 
 import React from 'react';
-import { cn } from '../../lib/utils';
+import { View } from 'react-native';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: (string | undefined | null | false)[]) {
+  return twMerge(clsx(inputs));
+}
 
 export const Skeleton = ({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => {
+}: React.ComponentProps<typeof View>) => {
   return (
-    <div
-      className={cn("animate-pulse rounded-md bg-gray-200/80", className)}
+    <View
+      className={cn("rounded-md bg-gray-200 opacity-50", className)}
       {...props}
     />
   );
